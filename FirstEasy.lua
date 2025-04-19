@@ -1,53 +1,48 @@
-local humanoid = script.Parent:FindFirstChildOfClass("Humanoid")
+local Players = game:GetService("Players")
 
-game.Players.PlayerAdded:Connect(function(player)
-    player.Chatted:Connect(function(msg)
-        if msg == "/fly" then
-            player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Flying)
+local function handleCommand(player, msg)
+    local character = player.Character
+    if not character then return end
+    
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if not humanoid then return end
+
+    -- Основные команды
+    if msg == "/fly" then
+        if humanoid:GetState() == Enum.HumanoidStateType.Flying then
+            humanoid:ChangeState(Enum.HumanoidStateType.None)
+        else
+            humanoid:ChangeState(Enum.HumanoidStateType.Flying)
         end
+        
+    elseif msg == "/jump" then
+        humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        
+    elseif msg == "/reset" then
+        humanoid.Health = 0
+        
+    elseif msg == "/ragdoll" then
+        humanoid:ChangeState(Enum.HumanoidStateType.FallingDown)
+        wait(2)
+        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+        
+    elseif msg == "/speed 50" then
+        humanoid.WalkSpeed = 50
+        
+    elseif msg == "/speed 16" then
+        humanoid.WalkSpeed = 16
+    end
+end
+
+-- Обработчик подключения игроков
+Players.PlayerAdded:Connect(function(player)
+    -- Ожидание появления персонажа
+    player.CharacterAdded:Connect(function(character)
+        character:WaitForChild("Humanoid")
     end)
-end)
-game.Players.PlayerAdded:Connect(function(player)
+    
+    -- Обработчик чата
     player.Chatted:Connect(function(msg)
-        if msg == "/unfly" then
-            player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.None)
-        end
-    end)
-end)
-game.Players.PlayerAdded:Connect(function(player)
-    player.Chatted:Connect(function(msg)
-        if msg == "/autojump" then
-            player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-        end
-    end)
-end)
-game.Players.PlayerAdded:Connect(function(player)
-    player.Chatted:Connect(function(msg)
-        if msg == "/unautojump" then
-            player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.None)
-        end
-    end)
-end)
-game.Players.PlayerAdded:Connect(function(player)
-    player.Chatted:Connect(function(msg)
-        if msg == "/reset" then
-            player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
-        end
-    end)
-end)
-game.Players.PlayerAdded:Connect(function(player)
-    player.Chatted:Connect(function(msg)
-        if msg == "/god" then
-            if player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead) then
-                player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-            end
-        end
-    end)
-end)
-game.Players.PlayerAdded:Connect(function(player)
-    player.Chatted:Connect(function(msg)
-        if msg == "/ragdoll" then
-            player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.FallingDown)
-        end
+        handleCommand(player, msg)
     end)
 end)
